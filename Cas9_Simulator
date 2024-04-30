@@ -1,0 +1,59 @@
+import random
+
+class CRISPR_Cas9_Simulator:
+    def __init__(self, target_sequence, guide_rna_sequence, genome):
+        self.target_sequence = target_sequence
+        self.guide_rna_sequence = guide_rna_sequence
+        self.genome = genome
+        self.pam_sequence = "NGG"  # Common PAM sequence for CRISPR Cas9
+        self.results = {
+            "successful_edits": 0,
+            "off_target_effects": 0
+        }
+        self.simulate_cas9_binding()
+
+    def simulate_cas9_binding(self):
+        # Find the target sequence in the genome
+        target_index = self.genome.find(self.target_sequence)
+        
+        if target_index == -1:
+            print("Target sequence not found in the genome.")
+            return
+        
+        # Check for PAM sequence
+        if self.genome[target_index + len(self.target_sequence):target_index + len(self.target_sequence) + 3] != self.pam_sequence:
+            print("No PAM sequence found after the target sequence.")
+            return
+        
+        # Simulate binding of Cas9 to target sequence
+        cas9_binding_successful = random.uniform(0, 1)  # Randomly determine success
+        
+        # Calculate successful edits and off-target effects
+        if cas9_binding_successful > 0.5:
+            # Assume successful editing with a 60% chance
+            self.results["successful_edits"] += 1 if random.uniform(0, 1) > 0.4 else 0
+            
+            # Assume potential off-target effects with a 30% chance
+            self.results["off_target_effects"] += 1 if random.uniform(0, 1) < 0.3 else 0
+
+    def get_simulation_results(self):
+        # Return the simulation results
+        return self.results
+
+#Test:
+if __name__ == "__main__":
+    # Sample genome sequence
+    genome = "ATCGATCGATCGATCGCGTATCGATCGATCGATCGCGTATCGATCGATCGCGTATCGATCGATCGCGT"
+    
+    # Sample target sequence and guide RNA sequence
+    target_sequence = "ATCGATCG"
+    guide_rna_sequence = "ATCGATCGCGTA"
+    
+    # Create a CRISPR_Cas9_Simulator instance
+    simulator = CRISPR_Cas9_Simulator(target_sequence, guide_rna_sequence, genome)
+    
+    # Get simulation results
+    results = simulator.get_simulation_results()
+    print("CRISPR Cas9 Simulation Results:")
+    print(f"Successful Edits: {results['successful_edits']}")
+    print(f"Off-Target Effects: {results['off_target_effects']}")
