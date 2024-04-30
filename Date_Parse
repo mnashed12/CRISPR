@@ -1,0 +1,76 @@
+import pysam  # For parsing and manipulating BAM files
+from Bio import SeqIO  # For parsing FASTQ files
+
+class DNA_Sequencing_Data_Parser:
+    def __init__(self, reference_sequence, sequencing_file, file_type="FASTQ"):
+        self.reference_sequence = reference_sequence
+        self.sequencing_file = sequencing_file
+        self.file_type = file_type
+        self.mutations = []
+        self.alignments = []
+
+        # Parse sequencing data
+        self.parse_sequencing_data()
+
+        # Identify mutations
+        self.identify_mutations()
+
+    def parse_sequencing_data(self):
+        if self.file_type == "FASTQ":
+            # Parse FASTQ file
+            with open(self.sequencing_file, "r") as fastq_file:
+                for record in SeqIO.parse(fastq_file, "fastq"):
+                    # Append the sequence to alignments
+                    self.alignments.append(str(record.seq))
+        elif self.file_type == "BAM":
+            # Parse BAM file
+            bam_file = pysam.AlignmentFile(self.sequencing_file, "rb")
+            for read in bam_file.fetch():
+                # Append the read sequence to alignments
+                self.alignments.append(read.query_sequence)
+        else:
+            print(f"Unsupported file type: {self.file_type}")
+
+    def identify_mutations(self):
+        # Iterate through alignments
+        for sequence in self.alignments:
+            # Compare the sequence to the reference sequence
+            for i, (ref_base, seq_base) in enumerate(zip(self.reference_sequence, sequence)):
+                if ref_base != seq_base:
+                    mutation_type = self.get_mutation_type(ref_base, seq_base)
+                    self.mutations.append({
+                        "mutation_type": mutation_type,
+                        "position": i,
+                        "reference_base": ref_base,
+                        "sequenced_base": seq_base
+                    })
+
+    def get_mutation_type(self, ref_base, seq_base):
+        if ref_base == "-" and seq_base != "-":
+            return "Insertion"
+        elif ref_base != "-" and seq_base == "-":
+            return "Deletion"
+        elif ref_base != seq_base:
+            return "Substitution"
+        else:
+            return "Unknown"
+
+    def get_mutations(self):
+        return self.mutations
+
+#Test:
+if __name__ == "__main__":
+    # Sample reference sequence
+    reference_sequence = "ATCGATCGATCGATCG"
+
+    # Sample sequencing data file (in FASTQ format)
+    sequencing_file = "sample_data.fastq"  # Replace with the path to your FASTQ file
+
+    # Create a DNA_Sequencing_Data_Parser instance
+    parser = DNA_Sequencing_Data_Parser(reference_sequence, sequencing_file, file_type="FASTQ")
+
+    # Get identified mutations
+    mutations = parser.get_mutations()
+    print("Identified Mutations:")
+    for mutation in mutations:
+        print(mutation)
