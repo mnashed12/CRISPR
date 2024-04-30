@@ -1,0 +1,68 @@
+class CRISPR_Efficiency_Estimator:
+    def __init__(self, reference_sequence, edited_sequence):
+        self.reference_sequence = reference_sequence
+        self.edited_sequence = edited_sequence
+        self.total_mutations = 0
+        self.successful_edits = 0
+        self.insertion_count = 0
+        self.deletion_count = 0
+        self.substitution_count = 0
+        self.calculate_efficiency()
+
+    def calculate_efficiency(self):
+        # Calculate the efficiency of CRISPR edits
+        mutation_detector = MutationDetector(self.reference_sequence, self.edited_sequence)
+        mutation_detector.detect_mutations()
+        
+        # Get detected mutations
+        mutations = mutation_detector.get_mutations()
+        
+        # Classify mutations and count them
+        for mutation in mutations:
+            mutation_type, mutation_position, mutated_base = mutation
+            self.total_mutations += 1
+            
+            # Count mutation types
+            if mutation_type == "Insertion":
+                self.insertion_count += 1
+            elif mutation_type == "Deletion":
+                self.deletion_count += 1
+            elif mutation_type == "Substitution":
+                self.substitution_count += 1
+
+        # Calculate successful edits
+        # Assuming any detected mutation is a successful edit
+        self.successful_edits = self.total_mutations
+
+    def get_efficiency_report(self):
+        # Calculate percentage efficiency
+        if len(self.reference_sequence) > 0:
+            efficiency_percentage = (self.successful_edits / len(self.reference_sequence)) * 100
+        else:
+            efficiency_percentage = 0
+        
+        # Generate efficiency report
+        report = {
+            "Total Mutations": self.total_mutations,
+            "Successful Edits": self.successful_edits,
+            "Efficiency Percentage": f"{efficiency_percentage:.2f}%",
+            "Insertion Count": self.insertion_count,
+            "Deletion Count": self.deletion_count,
+            "Substitution Count": self.substitution_count
+        }
+        return report
+
+#Test
+if __name__ == "__main__":
+    # Sample reference and edited sequences
+    reference_sequence = "ATCGATCGATCGATCG"
+    edited_sequence = "ATCGATTGATCGATCG"
+
+    # Create a CRISPR_Efficiency_Estimator instance
+    efficiency_estimator = CRISPR_Efficiency_Estimator(reference_sequence, edited_sequence)
+
+    # Get efficiency report
+    efficiency_report = efficiency_estimator.get_efficiency_report()
+    print("CRISPR Efficiency Report:")
+    for key, value in efficiency_report.items():
+        print(f"{key}: {value}")
