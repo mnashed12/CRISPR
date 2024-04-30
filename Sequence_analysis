@@ -1,0 +1,86 @@
+class MutationDetector:
+    def __init__(self, reference_sequence, edited_sequence):
+        self.reference_sequence = reference_sequence
+        self.edited_sequence = edited_sequence
+        self.mutations = []
+
+    def detect_mutations(self):
+        # Align the sequences
+        aligned_sequences = self.align_sequences()
+
+        # Detect mutations
+        self.detect_insertions(aligned_sequences)
+        self.detect_deletions(aligned_sequences)
+        self.detect_substitutions(aligned_sequences)
+
+    def align_sequences(self):
+        # This is a simplified alignment method
+        # May want to use more sophisticated alignment algorithms
+        # For simplicity, assume the sequences are of the same length
+        aligned_sequences = []
+        for i in range(len(self.reference_sequence)):
+            if self.reference_sequence[i] != self.edited_sequence[i]:
+                aligned_sequences.append((self.reference_sequence[i], self.edited_sequence[i]))
+            else:
+                aligned_sequences.append((self.reference_sequence[i], '-'))
+        return aligned_sequences
+
+    def detect_insertions(self, aligned_sequences):
+        for i, (ref_base, edited_base) in enumerate(aligned_sequences):
+            if ref_base == '-' and edited_base != '-':
+                mutation_type = "Insertion"
+                mutation_position = i
+                mutated_base = edited_base
+                self.mutations.append((mutation_type, mutation_position, mutated_base))
+
+    def detect_deletions(self, aligned_sequences):
+        for i, (ref_base, edited_base) in enumerate(aligned_sequences):
+            if ref_base != '-' and edited_base == '-':
+                mutation_type = "Deletion"
+                mutation_position = i
+                mutated_base = ref_base
+                self.mutations.append((mutation_type, mutation_position, mutated_base))
+
+    def detect_substitutions(self, aligned_sequences):
+        for i, (ref_base, edited_base) in enumerate(aligned_sequences):
+            if ref_base != '-' and edited_base != '-' and ref_base != edited_base:
+                mutation_type = "Substitution"
+                mutation_position = i
+                mutated_base = edited_base
+                self.mutations.append((mutation_type, mutation_position, mutated_base))
+
+    def filter_mutations(self):
+        # Apply filters to remove false positives and noise
+        pass
+
+    def annotate_mutations(self):
+        # Annotate mutations with relevant information
+        pass
+
+    def get_mutations(self):
+        return self.mutations
+
+
+#Tests
+if __name__ == "__main__":
+    # Sample reference and edited sequences
+    reference_sequence = "ATCGATCGATCGATCG"
+    edited_sequence = "ATCGATTGATCGATCG"
+
+    # Create a MutationDetector instance
+    detector = MutationDetector(reference_sequence, edited_sequence)
+
+    # Detect mutations
+    detector.detect_mutations()
+
+    # Filter mutations
+    detector.filter_mutations()
+
+    # Annotate mutations
+    detector.annotate_mutations()
+
+    # Get detected mutations
+    mutations = detector.get_mutations()
+    print("Detected Mutations:")
+    for mutation in mutations:
+        print(mutation)
